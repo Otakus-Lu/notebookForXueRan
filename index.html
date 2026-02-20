@@ -145,23 +145,20 @@
         .trust-btn::before { content: ''; display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; background: currentColor; opacity: 0.5; }
         .trust-btn.selected::before { opacity: 1; background: white; }
         
-        /* 阵营关系选择器 */
-        .relation-selector { display: flex; gap: 10px; margin-top: 10px; }
-        .relation-btn { flex: 1; padding: 10px 8px; border: 2px solid #d9d9d9; border-radius: 8px; cursor: pointer; font-size: 13px; text-align: center; transition: all 0.3s; font-weight: 500; background: white; }
-        .relation-btn:hover { transform: translateY(-2px); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-        .relation-btn[data-relation="none"] { color: #666; }
-        .relation-btn[data-relation="none"]:hover { border-color: #999; }
-        .relation-btn[data-relation="none"].selected { background: #f5f5f5; border-color: #999; }
-        .relation-btn.relation-ally { color: #722ed1; }
-        .relation-btn.relation-ally:hover { border-color: #722ed1; color: #722ed1; }
-        .relation-btn.relation-ally.selected { background: #722ed1; border-color: #722ed1; color: white; box-shadow: 0 4px 12px rgba(114,46,217,0.4); }
-        .relation-btn.relation-enemy { color: #ff4d4f; }
-        .relation-btn.relation-enemy:hover { border-color: #ff4d4f; color: #ff4d4f; }
-        .relation-btn.relation-enemy.selected { background: #ff4d4f; border-color: #ff4d4f; color: white; box-shadow: 0 4px 12px rgba(255,77,79,0.4); }
+        /* 颜色标识选择器 */
+        .color-tag-selector { display: flex; gap: 10px; margin-top: 10px; }
+        .color-tag-btn { flex: 1; padding: 10px 8px; border: 2px solid transparent; border-radius: 8px; cursor: pointer; font-size: 13px; text-align: center; transition: all 0.3s; font-weight: 500; }
+        .color-tag-btn:hover { transform: translateY(-2px); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .color-tag-btn[data-color="none"] { border-color: #d9d9d9; color: #666; }
+        .color-tag-btn[data-color="none"].selected { border-color: #999; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+        .color-tag-btn[data-color="red"].selected { box-shadow: 0 4px 12px rgba(255,77,79,0.4); }
+        .color-tag-btn[data-color="yellow"].selected { box-shadow: 0 4px 12px rgba(250,173,20,0.4); }
+        .color-tag-btn[data-color="blue"].selected { box-shadow: 0 4px 12px rgba(24,144,255,0.4); }
         
-        /* 阵营关系边框 - 显示在头像上 */
-        .seat-avatar.relation-ally { box-shadow: 0 0 0 3px #722ed1, 0 2px 8px rgba(0,0,0,0.15) !important; }
-        .seat-avatar.relation-enemy { box-shadow: 0 0 0 3px #ff4d4f, 0 2px 8px rgba(0,0,0,0.15) !important; }
+        /* 颜色标识边框 - 显示在头像上 */
+        .seat-avatar.color-red { box-shadow: 0 0 0 3px #ff4d4f, 0 2px 8px rgba(0,0,0,0.15) !important; }
+        .seat-avatar.color-yellow { box-shadow: 0 0 0 3px #faad14, 0 2px 8px rgba(0,0,0,0.15) !important; }
+        .seat-avatar.color-blue { box-shadow: 0 0 0 3px #1890ff, 0 2px 8px rgba(0,0,0,0.15) !important; }
         
         .player-notes { margin-top: 15px; }
         .player-notes textarea { min-height: 80px; font-size: 13px; }
@@ -412,16 +409,12 @@
                 </div>
             </div>
             <div class="form-group">
-                <label>阵营关系</label>
-                <div class="relation-selector">
-                    <div class="relation-btn" data-relation="none" onclick="selectRelation('none')">无</div>
-                    <div class="relation-btn relation-ally" data-relation="ally" onclick="selectRelation('ally')">同伙</div>
-                    <div class="relation-btn relation-enemy" data-relation="enemy" onclick="selectRelation('enemy')">对立</div>
-                </div>
-                <div id="relationPlayerSelect" style="margin-top: 10px; display: none;">
-                    <select id="relatedPlayerSelect" style="width: 100%; padding: 8px; border: 1px solid #d9d9d9; border-radius: 6px; font-size: 14px;">
-                        <option value="">选择关联玩家</option>
-                    </select>
+                <label>颜色标识</label>
+                <div class="color-tag-selector">
+                    <div class="color-tag-btn" data-color="none" onclick="selectColorTag('none')" style="background: #f5f5f5;">无</div>
+                    <div class="color-tag-btn" data-color="red" onclick="selectColorTag('red')" style="background: #ff4d4f; color: white;">红</div>
+                    <div class="color-tag-btn" data-color="yellow" onclick="selectColorTag('yellow')" style="background: #faad14; color: white;">黄</div>
+                    <div class="color-tag-btn" data-color="blue" onclick="selectColorTag('blue')" style="background: #1890ff; color: white;">蓝</div>
                 </div>
             </div>
             <div class="form-group">
@@ -761,7 +754,7 @@
                 seat.onclick = () => openPlayerModal(player);
 
                 const avatar = document.createElement('div');
-                avatar.className = `seat-avatar ${player.alive ? 'alive' : 'dead'}${player.relation ? ' relation-' + player.relation : ''}`;
+                avatar.className = `seat-avatar ${player.alive ? 'alive' : 'dead'}${player.colorTag ? ' color-' + player.colorTag : ''}`;
                 
                 // 如果有推测角色，显示角色图标
                 if (player.speculatedRole && roleIcons[player.speculatedRole]) {
@@ -816,21 +809,14 @@ function openPlayerModal(player) {
             renderRoleSpeculation(player.speculatedRole);
             selectTrustLevel(player.trustLevel || null, false);
             
-            // 初始化阵营关系
-            const relation = player.relation || 'none';
-            document.querySelectorAll('.relation-btn').forEach(btn => {
+            // 初始化颜色标识
+            const colorTag = player.colorTag || 'none';
+            document.querySelectorAll('.color-tag-btn').forEach(btn => {
                 btn.classList.remove('selected');
-                if (btn.dataset.relation === relation) {
+                if (btn.dataset.color === colorTag) {
                     btn.classList.add('selected');
                 }
             });
-            const selectContainer = document.getElementById('relationPlayerSelect');
-            if (relation !== 'none' && relation) {
-                selectContainer.style.display = 'block';
-                renderRelatedPlayerSelect();
-            } else {
-                selectContainer.style.display = 'none';
-            }
             
             document.getElementById('playerModal').classList.add('show');
         }
@@ -895,26 +881,19 @@ function openPlayerModal(player) {
             });
         }
         
-        function selectRelation(relation) {
-            const selectContainer = document.getElementById('relationPlayerSelect');
-            
+        function selectColorTag(color) {
             if (!currentEditingPlayer) return;
             
-            if (relation === 'none') {
-                currentEditingPlayer.relation = null;
-                currentEditingPlayer.relatedPlayer = null;
-                selectContainer.style.display = 'none';
+            if (color === 'none') {
+                currentEditingPlayer.colorTag = null;
             } else {
-                currentEditingPlayer.relation = relation;
-                // 显示关联玩家选择器
-                selectContainer.style.display = 'block';
-                renderRelatedPlayerSelect();
+                currentEditingPlayer.colorTag = color;
             }
             
             // 更新按钮状态
-            document.querySelectorAll('.relation-btn').forEach(btn => {
+            document.querySelectorAll('.color-tag-btn').forEach(btn => {
                 btn.classList.remove('selected');
-                if (btn.dataset.relation === (currentEditingPlayer?.relation || 'none')) {
+                if (btn.dataset.color === (currentEditingPlayer?.colorTag || 'none')) {
                     btn.classList.add('selected');
                 }
             });
@@ -922,28 +901,6 @@ function openPlayerModal(player) {
             renderSeats();
         }
         
-        function renderRelatedPlayerSelect() {
-            const select = document.getElementById('relatedPlayerSelect');
-            select.innerHTML = '<option value="">选择关联玩家</option>';
-            
-            gameState.players.forEach(player => {
-                if (player.id !== currentEditingPlayer.id) {
-                    const option = document.createElement('option');
-                    option.value = player.id;
-                    option.textContent = `${player.seat}号 ${player.name}`;
-                    if (currentEditingPlayer.relatedPlayer === player.id) {
-                        option.selected = true;
-                    }
-                    select.appendChild(option);
-                }
-            });
-            
-            select.onchange = () => {
-                currentEditingPlayer.relatedPlayer = select.value ? parseInt(select.value) : null;
-                renderSeats();
-            };
-        }
-
         function savePlayer() {
             if (currentEditingPlayer) {
                 currentEditingPlayer.name = document.getElementById('playerName').value || currentEditingPlayer.name;

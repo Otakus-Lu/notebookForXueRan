@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>记事本</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 800px;
+            padding: 30px;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 28px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        h1::before {
+            content: "📝";
+        }
+        
+        textarea {
+            width: 100%;
+            height: 400px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 16px;
+            font-size: 16px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            resize: none;
+            transition: border-color 0.3s ease;
+        }
+        
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        
+        button {
+            padding: 12px 28px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .save-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .save-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .clear-btn {
+            background: #f5f5f5;
+            color: #666;
+        }
+        
+        .clear-btn:hover {
+            background: #e0e0e0;
+        }
+        
+        .status {
+            margin-top: 16px;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            display: none;
+        }
+        
+        .status.show {
+            display: block;
+        }
+        
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .char-count {
+            text-align: right;
+            color: #999;
+            font-size: 14px;
+            margin-top: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>我的记事本</h1>
+        <textarea id="note" placeholder="在这里写下你的笔记..."></textarea>
+        <div class="char-count">字数: <span id="count">0</span></div>
+        <div class="buttons">
+            <button class="save-btn" onclick="saveNote()">保存笔记</button>
+            <button class="clear-btn" onclick="clearNote()">清空笔记</button>
+        </div>
+        <div class="status" id="status"></div>
+    </div>
+
+    <script>
+        const noteKey = 'notebook_notes';
+        const noteArea = document.getElementById('note');
+        const countSpan = document.getElementById('count');
+        const statusDiv = document.getElementById('status');
+        
+        // 加载保存的笔记
+        window.onload = function() {
+            const saved = localStorage.getItem(noteKey);
+            if (saved) {
+                noteArea.value = saved;
+                updateCount();
+            }
+        };
+        
+        // 更新字数统计
+        noteArea.addEventListener('input', updateCount);
+        
+        function updateCount() {
+            countSpan.textContent = noteArea.value.length;
+        }
+        
+        // 保存笔记
+        function saveNote() {
+            const content = noteArea.value;
+            localStorage.setItem(noteKey, content);
+            showStatus('笔记已保存！', 'success');
+        }
+        
+        // 清空笔记
+        function clearNote() {
+            if (noteArea.value && !confirm('确定要清空所有笔记吗？')) {
+                return;
+            }
+            noteArea.value = '';
+            localStorage.removeItem(noteKey);
+            updateCount();
+            showStatus('笔记已清空', 'success');
+        }
+        
+        // 显示状态消息
+        function showStatus(message, type) {
+            statusDiv.textContent = message;
+            statusDiv.className = 'status show ' + type;
+            setTimeout(() => {
+                statusDiv.className = 'status';
+            }, 3000);
+        }
+        
+        // 自动保存（每30秒）
+        setInterval(() => {
+            if (noteArea.value) {
+                localStorage.setItem(noteKey, noteArea.value);
+            }
+        }, 30000);
+    </script>
+</body>
+</html>

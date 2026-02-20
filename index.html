@@ -50,11 +50,32 @@
         .main-content { display: grid; grid-template-columns: 1fr 350px; gap: 20px; }
         @media (max-width: 900px) { .main-content { grid-template-columns: 1fr; } }
         .seats-section { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        @media (max-width: 600px) {
+            .seats-section { padding: 15px; }
+            .seats-title { font-size: 16px; margin-bottom: 15px; }
+        }
         .seats-title { font-size: 18px; margin-bottom: 20px; color: #333; }
         .seats-container { position: relative; width: 100%; padding-bottom: 100%; margin: 0 auto; }
         .seats-circle { position: absolute; top: 50%; left: 50%; width: 60%; height: 60%; transform: translate(-50%, -50%); border: 2px dashed #ddd; border-radius: 50%; }
         .center-info { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; color: #999; font-size: 14px; }
         .seat { position: absolute; width: 100px; transform: translate(-50%, -50%); cursor: pointer; transition: transform 0.2s; z-index: 10; }
+        @media (max-width: 600px) {
+            .seat { width: 70px; }
+            .seat-avatar { width: 50px !important; height: 50px !important; font-size: 16px !important; }
+            .seat-avatar .role-icon { font-size: 24px !important; }
+            .seat-avatar .role-initial { font-size: 20px !important; }
+            .seat-name { font-size: 11px !important; max-width: 70px !important; }
+            .seat-role-badge { font-size: 9px !important; padding: 1px 5px !important; }
+            .seats-circle { width: 75% !important; height: 75% !important; }
+        }
+        @media (max-width: 400px) {
+            .seat { width: 55px; }
+            .seat-avatar { width: 40px !important; height: 40px !important; font-size: 14px !important; }
+            .seat-avatar .role-icon { font-size: 18px !important; }
+            .seat-avatar .role-initial { font-size: 14px !important; }
+            .seat-name { font-size: 9px !important; max-width: 55px !important; }
+            .seats-circle { width: 85% !important; height: 85% !important; }
+        }
         .seat:hover { transform: translate(-50%, -50%) scale(1.08); z-index: 20; }
         .seat-avatar { width: 70px; height: 70px; border-radius: 50%; margin: 0 auto 8px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 20px; transition: all 0.2s; position: relative; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
         .seat-avatar.alive { background: linear-gradient(135deg, #e6f7ff 0%, #bae7ff 100%); border: 3px solid #1890ff; color: #1890ff; }
@@ -373,10 +394,9 @@
                     { name: '通灵师', ability: '每个夜晚，你会得知一名说书人为你选择的存活玩家。' },
                     { name: '守鸦人', ability: '如果你在夜晚死亡，你会醒来并得知一名说书人为你选择的玩家角色。' },
                     { name: '僧侣', ability: '每个夜晚*，选择一名玩家（除了你自己）：他在今晚不会死亡。' },
-                    { name: '小恶魔', ability: '每个夜晚*，选择一名玩家：他死亡。' },
+                    { name: '送葬者', ability: '每个白天，你可以选择查看一名被处决玩家的角色。' },
+                    { name: '处刑人', ability: '如果你是首次被提名的玩家，你可以宣布提名无效。' },
                     { name: '士兵', ability: '如果你是恶魔的目标，你不会死亡。' },
-                    { name: '弄臣', ability: '如果你是首次被处决的玩家，你不会死亡。' },
-                    { name: '镇民', ability: '如果你是唯一被处决的玩家，你不会死亡。' },
                     { name: '市长', ability: '如果你在只有3名玩家存活时被处决，好人阵营获胜。' }
                 ],
                 outsider: [
@@ -399,33 +419,37 @@
                 name: '黯月初升',
                 description: '进阶剧本，夜晚死亡人数更多，信息更复杂',
                 townsfolk: [
-                    { name: '弄臣', ability: '如果你是首次被处决的玩家，你不会死亡。' },
                     { name: '祖母', ability: '游戏开始时，你选择一名玩家成为你的孙子。如果该玩家是恶魔，你会得知。' },
-                    { name: '水手', ability: '每个夜晚，你选择一名玩家：该玩家 tonight 不会死亡。你会得知该玩家是否今晚会被杀。' },
-                    { name: '侍臣', ability: '每个夜晚，你选择一名玩家：该玩家 tonight 中毒，但明天免疫处决。' },
-                    { name: '驱魔人', ability: '每个夜晚*，你选择一名玩家：如果该玩家是恶魔，该玩家 tonight 不能杀人。' },
-                    { name: '守夜人', ability: '每个夜晚，你会得知昨晚是否有人死亡。' },
-                    { name: '主谋', ability: '如果只有3名玩家存活时恶魔被处决，坏人阵营获胜。' },
-                    { name: '渔夫', ability: '每个白天，你可以询问说书人一个是非问题，说书人会如实回答。' },
+                    { name: '水手', ability: '每个夜晚，你选择一名玩家：该玩家今晚不会死亡。你会得知该玩家是否今晚会被杀。' },
+                    { name: '客房女仆', ability: '每个夜晚，你会得知与你相邻的存活玩家中有多少人在今晚会死亡。' },
+                    { name: '驱魔人', ability: '每个夜晚*，你选择一名玩家：如果该玩家是恶魔，该玩家今晚不能杀人。' },
                     { name: '旅店老板', ability: '每个夜晚，你选择两名玩家：他们今晚不会死亡，但如果其中一名是恶魔，另一名会中毒。' },
                     { name: '赌徒', ability: '每个夜晚，你猜测一名玩家的角色：如果猜错，你会死亡。' },
-                    { name: '造谣者', ability: '如果你白天被处决，当晚恶魔会额外杀死一名玩家。' }
+                    { name: '流言者', ability: '每个白天，你选择一名玩家并公开说出一个角色：该玩家如果是的角色，你会得知。' },
+                    { name: '朝臣', ability: '每个夜晚，你选择一名玩家：该玩家今晚中毒，但明天免疫处决。' },
+                    { name: '教授', ability: '每个夜晚，你可以选择一名玩家：如果该玩家今晚死亡，该玩家会复活。' },
+                    { name: '吟游诗人', ability: '每个夜晚，你会得知是否有玩家存活且能力未生效。' },
+                    { name: '茶馆老板', ability: '游戏开始时，你选择两名玩家：他们相邻而坐。' },
+                    { name: '和平主义者', ability: '如果你在白天被提名，你可以宣布今天是和平日，所有投票无效。' },
+                    { name: '愚人', ability: '每个夜晚，你会得知一名说书人为你选择的有趣信息。' }
                 ],
                 outsider: [
+                    { name: '恶霸', ability: '每个夜晚，你选择一名玩家：如果该玩家被处决，你会死亡。' },
                     { name: '疯子', ability: '你以为你是恶魔，但你不是。' },
-                    { name: '月之子', ability: '如果你被处决，当晚说书人会选择一名玩家，该玩家会死亡。' },
                     { name: '修补匠', ability: '你可能会在任何时间突然死亡。' },
-                    { name: '异乡人', ability: '如果你死亡，当晚恶魔可以额外杀死一名玩家。' }
+                    { name: '月之子', ability: '如果你被处决，当晚恶魔可以额外杀死一名玩家。' }
                 ],
                 minion: [
-                    { name: '戈德尔', ability: '每个夜晚，你选择一名玩家：该玩家今晚不会死亡。[+1 外来者]' },
+                    { name: '教父', ability: '每个夜晚，你选择一名玩家：如果该玩家明天被处决，坏人阵营获胜。' },
+                    { name: '魔鬼代言人', ability: '每个夜晚，你选择一名玩家：如果该玩家明天被处决，他不会死亡。' },
                     { name: '刺客', ability: '每个夜晚*，你可以选择杀死一名玩家，无视保护效果。' },
-                    { name: '暴徒', ability: '每个夜晚，你选择一名玩家：如果该玩家 tomorrow 被提名，该玩家会被处决。' },
-                    { name: '巫婆', ability: '每个夜晚，你选择一名玩家：如果该玩家 tomorrow 提名他人，该玩家会死亡。' }
+                    { name: '主谋', ability: '每个夜晚，你可以选择一名玩家：明天该玩家必须提名。' }
                 ],
                 demon: [
-                    { name: '沙巴洛斯', ability: '每个夜晚*，你选择两名玩家：这两名玩家死亡。每场游戏限一次，你可以杀死一名已死亡的玩家，该玩家的灵魂会死亡。' },
-                    { name: '珀', ability: '每个夜晚*，你选择三名玩家：其中一名玩家死亡。如果一名爪牙提名你并被处决，坏人阵营获胜。' }
+                    { name: '佐姆布尔', ability: '每个夜晚，你选择一名玩家：该玩家死亡。如果你死亡，当晚你会额外杀死一名玩家。' },
+                    { name: '普卡', ability: '每个夜晚，你选择一名玩家：该玩家死亡。被你杀死的村民会中毒。' },
+                    { name: '沙巴洛斯', ability: '每个夜晚*，你选择两名玩家：这两名玩家死亡。每场游戏限一次，你可以杀死一名已死亡的玩家。' },
+                    { name: '波', ability: '每个夜晚*，你选择三名玩家：其中一名玩家死亡。如果一名爪牙提名你并被处决，坏人阵营获胜。' }
                 ]
             },
             sectsAndViolets: {
@@ -436,29 +460,33 @@
                     { name: '筑梦师', ability: '每个夜晚，你选择一名玩家（除了你自己和旅行者）：你会得知该玩家的角色。' },
                     { name: '舞蛇人', ability: '每个夜晚，你选择一名玩家：如果该玩家是恶魔，你和他交换角色和阵营，然后他中毒。' },
                     { name: '数学家', ability: '每个夜晚，你会得知今天有多少名玩家的能力因其他角色而未能正常生效。' },
-                    { name: '杂耍艺人', ability: '游戏的第一天白天，你可以公开猜测最多5名玩家的角色。当晚，你会得知你猜对了几个。' },
-                    { name: '心灵感应者', ability: '每个白天，你可以私下询问说书人一个是非问题。' },
+                    { name: '卖花女', ability: '每个夜晚，你会得知今天白天是否有恶魔投票。' },
+                    { name: '城镇公告员', ability: '每个夜晚，你会得知今天白天是否有爪牙提名。' },
+                    { name: '神谕者', ability: '每个夜晚，你会得知有多少名玩家是邪恶的（爪牙或恶魔）。' },
+                    { name: '学者', ability: '每个白天，你可以私下询问说书人一个关于游戏的开放式问题。' },
+                    { name: '裁缝', ability: '每个夜晚，你选择两名玩家：你会得知他们是否是同一阵营。' },
                     { name: '哲学家', ability: '每个夜晚，你可以选择获得一个不在场的村民角色的能力。' },
                     { name: '艺术家', ability: '每局游戏限一次，白天你可以私下询问说书人一个是非问题，说书人会如实回答。' },
-                    { name: '博学者', ability: '每个白天，你可以私下询问说书人一个关于游戏的开放式问题。' },
-                    { name: '卖花女', ability: '每个夜晚，你会得知今天白天是否有恶魔投票。' },
-                    { name: '城镇公告员', ability: '每个夜晚，你会得知今天白天是否有爪牙提名。' }
+                    { name: '杂耍艺人', ability: '游戏的第一天白天，你可以公开猜测最多5名玩家的角色。当晚，你会得知你猜对了几个。' },
+                    { name: '智者', ability: '每个夜晚，你会得知一名玩家是否是村民。' }
                 ],
                 outsider: [
                     { name: '畸形秀演员', ability: '如果你被处决，游戏不会结束。' },
-                    { name: '理发师', ability: '如果你死亡，今晚恶魔可以选择交换两名玩家的角色。' },
-                    { name: '告密者', ability: '每个夜晚，你会得知一名被提名玩家的角色。' },
-                    { name: '女巫', ability: '每个夜晚，你选择一名玩家：如果该玩家 tomorrow 被提名，该玩家会被处决。' }
+                    { name: '甜心', ability: '游戏开始时，你得知一名玩家是甜的。如果他死亡，当晚恶魔可以额外杀死一名玩家。' },
+                    { name: '理发师', ability: '每个夜晚，你选择一名玩家：你和该玩家交换角色。' },
+                    { name: '笨拙者', ability: '每个白天，你可以选择做错一件事来获得一名玩家的信任。' }
                 ],
                 minion: [
-                    { name: '寡妇', ability: '游戏开始时，你查看魔典并选择一名玩家：该玩家中毒。你会获得该角色的能力。' },
-                    { name: '魔鬼代言人', ability: '每个夜晚，你选择一名玩家：如果该玩家明天被处决，他不会死亡。' },
-                    { name: '洗脑师', ability: '每个夜晚，你选择一名玩家并选择一个角色：明天该玩家必须（尽可能）表现得像该角色。' },
-                    { name: '灵言师', ability: '每个白天，在第一条提名后，你可以选择让被提名的玩家立即被处决或存活。' }
+                    { name: '邪恶双胞胎', ability: '游戏开始时，你与另一名玩家结为双胞胎。如果你死亡，该玩家也会死亡。如果双胞胎存活且好人获胜，你也会获胜。' },
+                    { name: '女巫', ability: '每个夜晚，你选择一名玩家：如果该玩家明天提名，该玩家会死亡。' },
+                    { name: '狂士', ability: '每个夜晚，你选择一名玩家并宣布一个角色：该玩家如果表现得像该角色会被处决。' },
+                    { name: '跨界者', ability: '每个夜晚，你选择一名玩家和一个角色：该玩家获得该角色。' }
                 ],
                 demon: [
-                    { name: '毒蛇', ability: '每个夜晚，你选择一名玩家：该玩家死亡。被你杀死的村民玩家中毒。' },
-                    { name: '诺达鲺', ability: '每个夜晚，你选择一名玩家：该玩家死亡。被你杀死的玩家保留能力，但可能会收到错误信息。' }
+                    { name: '方古', ability: '每个夜晚，你选择一名玩家：该玩家死亡。如果你杀死的是外来者，该外来者会成为新的方古。' },
+                    { name: '维克莫蒂斯', ability: '每个夜晚，你选择一名玩家：该玩家死亡。你杀死的爪牙仍保留能力。' },
+                    { name: '诺达鲺', ability: '每个夜晚，你选择一名玩家：该玩家死亡。被你杀死的玩家保留能力，但会收到错误信息。' },
+                    { name: '涡旋者', ability: '所有信息都是虚假的。如果没有人被处决，坏人获胜。' }
                 ]
             }
         };
@@ -475,9 +503,9 @@
             '通灵师': { icon: '🔮', initial: '灵', color: '#52c41a' },
             '守鸦人': { icon: '🐦‍⬛', initial: '鸦', color: '#52c41a' },
             '僧侣': { icon: '⛪', initial: '僧', color: '#52c41a' },
-            '士兵': { icon: '⚔️', initial: '兵', color: '#52c41a' },
-            '弄臣': { icon: '🃏', initial: '弄', color: '#52c41a' },
             '送葬者': { icon: '⚰️', initial: '葬', color: '#52c41a' },
+            '处刑人': { icon: '🗡️', initial: '刑', color: '#52c41a' },
+            '士兵': { icon: '⚔️', initial: '兵', color: '#52c41a' },
             '市长': { icon: '👑', initial: '市', color: '#52c41a' },
             '管家': { icon: '👔', initial: '管', color: '#1890ff' },
             '酒鬼': { icon: '🍺', initial: '酒', color: '#1890ff' },
@@ -491,46 +519,55 @@
             // 黯月初升 - Bad Moon Rising
             '祖母': { icon: '👵', initial: '祖', color: '#52c41a' },
             '水手': { icon: '⚓', initial: '水', color: '#52c41a' },
-            '侍臣': { icon: '💂', initial: '侍', color: '#52c41a' },
+            '客房女仆': { icon: '🧹', initial: '客', color: '#52c41a' },
             '驱魔人': { icon: '✨', initial: '驱', color: '#52c41a' },
-            '守夜人': { icon: '🌙', initial: '夜', color: '#52c41a' },
-            '主谋': { icon: '🧠', initial: '谋', color: '#52c41a' },
-            '渔夫': { icon: '🎣', initial: '渔', color: '#52c41a' },
             '旅店老板': { icon: '🏨', initial: '店', color: '#52c41a' },
             '赌徒': { icon: '🎲', initial: '赌', color: '#52c41a' },
-            '造谣者': { icon: '📢', initial: '谣', color: '#52c41a' },
+            '流言者': { icon: '📢', initial: '流', color: '#52c41a' },
+            '朝臣': { icon: '💂', initial: '朝', color: '#52c41a' },
+            '教授': { icon: '🎓', initial: '教', color: '#52c41a' },
+            '吟游诗人': { icon: '🎵', initial: '吟', color: '#52c41a' },
+            '茶馆老板': { icon: '🍵', initial: '茶', color: '#52c41a' },
+            '和平主义者': { icon: '🕊️', initial: '和', color: '#52c41a' },
+            '愚人': { icon: '🤡', initial: '愚', color: '#52c41a' },
+            '恶霸': { icon: '👺', initial: '恶', color: '#1890ff' },
             '疯子': { icon: '🤪', initial: '疯', color: '#1890ff' },
             '月之子': { icon: '🌕', initial: '月', color: '#1890ff' },
             '修补匠': { icon: '🔧', initial: '修', color: '#1890ff' },
-            '异乡人': { icon: '🧳', initial: '外', color: '#1890ff' },
-            '戈德尔': { icon: '🛡️', initial: '戈', color: '#faad14' },
+            '教父': { icon: '🎩', initial: '父', color: '#faad14' },
+            '魔鬼代言人': { icon: '👹', initial: '代', color: '#faad14' },
             '刺客': { icon: '🗡️', initial: '刺', color: '#faad14' },
-            '暴徒': { icon: '💀', initial: '暴', color: '#faad14' },
-            '巫婆': { icon: '🧹', initial: '巫', color: '#faad14' },
+            '主谋': { icon: '🧠', initial: '谋', color: '#faad14' },
+            '佐姆布尔': { icon: '🧟', initial: '佐', color: '#ff4d4f' },
+            '普卡': { icon: '🦠', initial: '普', color: '#ff4d4f' },
             '沙巴洛斯': { icon: '🐙', initial: '沙', color: '#ff4d4f' },
-            '珀': { icon: '🌊', initial: '珀', color: '#ff4d4f' },
+            '波': { icon: '🌊', initial: '波', color: '#ff4d4f' },
             // 梦殒春宵 - Sects & Violets
             '钟表匠': { icon: '⏰', initial: '钟', color: '#52c41a' },
             '筑梦师': { icon: '💭', initial: '梦', color: '#52c41a' },
             '舞蛇人': { icon: '🐍', initial: '蛇', color: '#52c41a' },
             '数学家': { icon: '🔢', initial: '数', color: '#52c41a' },
-            '杂耍艺人': { icon: '🤹', initial: '杂', color: '#52c41a' },
-            '心灵感应者': { icon: '💫', initial: '感', color: '#52c41a' },
-            '哲学家': { icon: '🤔', initial: '哲', color: '#52c41a' },
-            '艺术家': { icon: '🎨', initial: '艺', color: '#52c41a' },
-            '博学者': { icon: '📖', initial: '博', color: '#52c41a' },
             '卖花女': { icon: '💐', initial: '花', color: '#52c41a' },
             '城镇公告员': { icon: '📯', initial: '告', color: '#52c41a' },
+            '神谕者': { icon: '🔮', initial: '神', color: '#52c41a' },
+            '学者': { icon: '📚', initial: '学', color: '#52c41a' },
+            '裁缝': { icon: '🧵', initial: '裁', color: '#52c41a' },
+            '哲学家': { icon: '🤔', initial: '哲', color: '#52c41a' },
+            '艺术家': { icon: '🎨', initial: '艺', color: '#52c41a' },
+            '杂耍艺人': { icon: '🤹', initial: '杂', color: '#52c41a' },
+            '智者': { icon: '📜', initial: '智', color: '#52c41a' },
             '畸形秀演员': { icon: '🎪', initial: '畸', color: '#1890ff' },
+            '甜心': { icon: '❤️', initial: '甜', color: '#1890ff' },
             '理发师': { icon: '✂️', initial: '理', color: '#1890ff' },
-            '告密者': { icon: '📜', initial: '密', color: '#1890ff' },
-            '女巫': { icon: '🧙‍♀️', initial: '巫', color: '#1890ff' },
-            '寡妇': { icon: '🕷️', initial: '寡', color: '#faad14' },
-            '魔鬼代言人': { icon: '👹', initial: '魔', color: '#faad14' },
-            '洗脑师': { icon: '🧠', initial: '洗', color: '#faad14' },
-            '灵言师': { icon: '👁️', initial: '言', color: '#faad14' },
-            '毒蛇': { icon: '🐍', initial: '毒', color: '#ff4d4f' },
-            '诺达鲺': { icon: '🦈', initial: '鲺', color: '#ff4d4f' }
+            '笨拙者': { icon: '🤕', initial: '笨', color: '#1890ff' },
+            '邪恶双胞胎': { icon: '👯', initial: '双', color: '#faad14' },
+            '女巫': { icon: '🧙‍♀️', initial: '巫', color: '#faad14' },
+            '狂士': { icon: '😈', initial: '狂', color: '#faad14' },
+            '跨界者': { icon: '🌉', initial: '跨', color: '#faad14' },
+            '方古': { icon: '🐺', initial: '方', color: '#ff4d4f' },
+            '维克莫蒂斯': { icon: '💀', initial: '维', color: '#ff4d4f' },
+            '诺达鲺': { icon: '🦈', initial: '鲺', color: '#ff4d4f' },
+            '涡旋者': { icon: '🌀', initial: '涡', color: '#ff4d4f' }
         };
 
         let gameState = { playerCount: 7, players: [], currentDay: 1, notes: { 1: '' }, votes: {}, executions: [], currentScript: 'troubleBrewing', lastSaved: null };
@@ -612,7 +649,15 @@
             const container = document.getElementById('seatsContainer');
             const oldSeats = container.querySelectorAll('.seat');
             oldSeats.forEach(seat => seat.remove());
-            const radius = 42, centerX = 50, centerY = 50, count = gameState.playerCount;
+            
+            // 根据玩家数量动态调整半径
+            const count = gameState.playerCount;
+            let radius = 42;
+            if (count >= 12) radius = 35;
+            else if (count >= 10) radius = 38;
+            else if (count >= 8) radius = 40;
+            
+            const centerX = 50, centerY = 50;
             gameState.players.forEach((player, index) => {
                 const angle = (index / count) * 2 * Math.PI - Math.PI / 2;
                 const x = centerX + radius * Math.cos(angle);

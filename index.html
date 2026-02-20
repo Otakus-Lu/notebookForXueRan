@@ -55,9 +55,53 @@
             .seats-title { font-size: 16px; margin-bottom: 15px; }
         }
         .seats-title { font-size: 18px; margin-bottom: 20px; color: #333; }
+        
+        /* 圆形座位布局 */
         .seats-container { position: relative; width: 100%; padding-bottom: 100%; margin: 0 auto; }
         .seats-circle { position: absolute; top: 50%; left: 50%; width: 60%; height: 60%; transform: translate(-50%, -50%); border: 2px dashed #ddd; border-radius: 50%; }
         .center-info { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; color: #999; font-size: 14px; }
+        
+        /* 紧凑圆形布局 - 适用于手机10人以上 */
+        .seats-container.compact .seats-circle { width: 80%; height: 80%; }
+        .seats-container.compact .seat { width: 60px; }
+        .seats-container.compact .seat-avatar { width: 40px !important; height: 40px !important; font-size: 14px !important; }
+        .seats-container.compact .seat-avatar .role-icon { font-size: 18px !important; }
+        .seats-container.compact .seat-avatar .role-initial { font-size: 14px !important; }
+        .seats-container.compact .seat-name { font-size: 9px !important; max-width: 60px !important; }
+        
+        /* 网格布局 - 适用于手机12人以上 */
+        .seats-container.grid { padding-bottom: 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+        .seats-container.grid .seats-circle { display: none; }
+        .seats-container.grid .seat { 
+            position: relative !important; 
+            width: calc(25% - 8px) !important; 
+            max-width: 80px;
+            transform: none !important;
+            left: auto !important;
+            top: auto !important;
+        }
+        .seats-container.grid .seat-avatar { width: 50px !important; height: 50px !important; }
+        .seats-container.grid .seat-avatar .role-icon { font-size: 22px !important; }
+        .seats-container.grid .seat-avatar .role-initial { font-size: 18px !important; }
+        .seats-container.grid .seat-name { font-size: 11px !important; max-width: 80px !important; }
+        
+        /* 2列网格 - 适用于极端情况 */
+        .seats-container.grid2 { padding-bottom: 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+        .seats-container.grid2 .seats-circle { display: none; }
+        .seats-container.grid2 .seat { 
+            position: relative !important; 
+            width: calc(50% - 10px) !important; 
+            max-width: 150px;
+            transform: none !important;
+            left: auto !important;
+            top: auto !important;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .seats-container.grid2 .seat-avatar { width: 60px !important; height: 60px !important; }
+        .seats-container.grid2 .seat-name { font-size: 14px !important; max-width: 120px !important; margin-top: 5px; }
+        
         .seat { position: absolute; width: 100px; transform: translate(-50%, -50%); cursor: pointer; transition: transform 0.2s; z-index: 10; }
         @media (max-width: 600px) {
             .seat { width: 70px; }
@@ -592,6 +636,15 @@
             updateDayTabs();
             initVotingSystem();
             setupAutoSave();
+            
+            // 监听窗口大小变化，重新渲染座位布局
+            let resizeTimer;
+            window.addEventListener('resize', () => {
+                clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(() => {
+                    renderSeats();
+                }, 200);
+            });
         };
 
         function changeScript(scriptKey) {
@@ -650,22 +703,48 @@
             const oldSeats = container.querySelectorAll('.seat');
             oldSeats.forEach(seat => seat.remove());
             
-            // 根据玩家数量动态调整半径
+            // 根据玩家数量和屏幕宽度选择布局
             const count = gameState.playerCount;
+            const screenWidth = window.innerWidth;
+            
+            // 清除之前的布局类
+            container.classList.remove('compact', 'grid', 'grid2');
+            
+            // 根据条件选择布局
             let radius = 42;
-            if (count >= 12) radius = 35;
-            else if (count >= 10) radius = 38;
-            else if (count >= 8) radius = 40;
+            if (screenWidth <= 600) {
+                // 手机端
+                if (count >= 14) {
+                    container.classList.add('grid2');
+                } else if (count >= 10) {
+                    container.classList.add('grid');
+                } else if (count >= 8) {
+                    container.classList.add('compact');
+                    radius = 38;
+                }
+            } else {
+                // 桌面端
+                if (count >= 12) radius = 35;
+                else if (count >= 10) radius = 38;
+                else if (count >= 8) radius = 40;
+            }
             
             const centerX = 50, centerY = 50;
+            const isGridLayout = container.classList.contains('grid') || container.classList.contains('grid2');
+            
             gameState.players.forEach((player, index) => {
-                const angle = (index / count) * 2 * Math.PI - Math.PI / 2;
-                const x = centerX + radius * Math.cos(angle);
-                const y = centerY + radius * Math.sin(angle);
                 const seat = document.createElement('div');
                 seat.className = 'seat';
-                seat.style.left = x + '%';
-                seat.style.top = y + '%';
+                
+                if (!isGridLayout) {
+                    // 圆形布局 - 计算位置
+                    const angle = (index / count) * 2 * Math.PI - Math.PI / 2;
+                    const x = centerX + radius * Math.cos(angle);
+                    const y = centerY + radius * Math.sin(angle);
+                    seat.style.left = x + '%';
+                    seat.style.top = y + '%';
+                }
+                
                 seat.onclick = () => openPlayerModal(player);
 
                 const avatar = document.createElement('div');

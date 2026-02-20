@@ -144,6 +144,25 @@
         .trust-btn.trust-danger.selected { background: #ff4d4f; color: white; border-color: #ff4d4f; box-shadow: 0 4px 12px rgba(255,77,79,0.4); }
         .trust-btn::before { content: ''; display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; background: currentColor; opacity: 0.5; }
         .trust-btn.selected::before { opacity: 1; background: white; }
+        
+        /* 阵营关系选择器 */
+        .relation-selector { display: flex; gap: 10px; margin-top: 10px; }
+        .relation-btn { flex: 1; padding: 10px 8px; border: 2px solid #d9d9d9; border-radius: 8px; cursor: pointer; font-size: 13px; text-align: center; transition: all 0.3s; font-weight: 500; background: white; }
+        .relation-btn:hover { transform: translateY(-2px); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .relation-btn[data-relation="none"] { color: #666; }
+        .relation-btn[data-relation="none"]:hover { border-color: #999; }
+        .relation-btn[data-relation="none"].selected { background: #f5f5f5; border-color: #999; }
+        .relation-btn.relation-ally { color: #722ed1; }
+        .relation-btn.relation-ally:hover { border-color: #722ed1; color: #722ed1; }
+        .relation-btn.relation-ally.selected { background: #722ed1; border-color: #722ed1; color: white; box-shadow: 0 4px 12px rgba(114,46,217,0.4); }
+        .relation-btn.relation-enemy { color: #ff4d4f; }
+        .relation-btn.relation-enemy:hover { border-color: #ff4d4f; color: #ff4d4f; }
+        .relation-btn.relation-enemy.selected { background: #ff4d4f; border-color: #ff4d4f; color: white; box-shadow: 0 4px 12px rgba(255,77,79,0.4); }
+        
+        /* 阵营关系边框 - 显示在头像上 */
+        .seat-avatar.relation-ally { box-shadow: 0 0 0 3px #722ed1, 0 2px 8px rgba(0,0,0,0.15) !important; }
+        .seat-avatar.relation-enemy { box-shadow: 0 0 0 3px #ff4d4f, 0 2px 8px rgba(0,0,0,0.15) !important; }
+        
         .player-notes { margin-top: 15px; }
         .player-notes textarea { min-height: 80px; font-size: 13px; }
         .sidebar { display: flex; flex-direction: column; gap: 20px; }
@@ -390,6 +409,19 @@
                     <div class="trust-btn trust-safe" data-trust="safe" onclick="selectTrustLevel('safe')">可信</div>
                     <div class="trust-btn trust-suspect" data-trust="suspect" onclick="selectTrustLevel('suspect')">存疑</div>
                     <div class="trust-btn trust-danger" data-trust="danger" onclick="selectTrustLevel('danger')">危险</div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>阵营关系</label>
+                <div class="relation-selector">
+                    <div class="relation-btn" data-relation="none" onclick="selectRelation('none')">无</div>
+                    <div class="relation-btn relation-ally" data-relation="ally" onclick="selectRelation('ally')">同伙</div>
+                    <div class="relation-btn relation-enemy" data-relation="enemy" onclick="selectRelation('enemy')">对立</div>
+                </div>
+                <div id="relationPlayerSelect" style="margin-top: 10px; display: none;">
+                    <select id="relatedPlayerSelect" style="width: 100%; padding: 8px; border: 1px solid #d9d9d9; border-radius: 6px; font-size: 14px;">
+                        <option value="">选择关联玩家</option>
+                    </select>
                 </div>
             </div>
             <div class="form-group">
@@ -729,7 +761,7 @@
                 seat.onclick = () => openPlayerModal(player);
 
                 const avatar = document.createElement('div');
-                avatar.className = `seat-avatar ${player.alive ? 'alive' : 'dead'}`;
+                avatar.className = `seat-avatar ${player.alive ? 'alive' : 'dead'}${player.relation ? ' relation-' + player.relation : ''}`;
                 
                 // 如果有推测角色，显示角色图标
                 if (player.speculatedRole && roleIcons[player.speculatedRole]) {
@@ -783,6 +815,23 @@ function openPlayerModal(player) {
             document.getElementById('playerNotes').value = player.notes || '';
             renderRoleSpeculation(player.speculatedRole);
             selectTrustLevel(player.trustLevel || null, false);
+            
+            // 初始化阵营关系
+            const relation = player.relation || 'none';
+            document.querySelectorAll('.relation-btn').forEach(btn => {
+                btn.classList.remove('selected');
+                if (btn.dataset.relation === relation) {
+                    btn.classList.add('selected');
+                }
+            });
+            const selectContainer = document.getElementById('relationPlayerSelect');
+            if (relation !== 'none' && relation) {
+                selectContainer.style.display = 'block';
+                renderRelatedPlayerSelect();
+            } else {
+                selectContainer.style.display = 'none';
+            }
+            
             document.getElementById('playerModal').classList.add('show');
         }
 
@@ -844,6 +893,55 @@ function openPlayerModal(player) {
                     btn.classList.add('selected');
                 }
             });
+        }
+        
+        function selectRelation(relation) {
+            const selectContainer = document.getElementById('relationPlayerSelect');
+            
+            if (!currentEditingPlayer) return;
+            
+            if (relation === 'none') {
+                currentEditingPlayer.relation = null;
+                currentEditingPlayer.relatedPlayer = null;
+                selectContainer.style.display = 'none';
+            } else {
+                currentEditingPlayer.relation = relation;
+                // 显示关联玩家选择器
+                selectContainer.style.display = 'block';
+                renderRelatedPlayerSelect();
+            }
+            
+            // 更新按钮状态
+            document.querySelectorAll('.relation-btn').forEach(btn => {
+                btn.classList.remove('selected');
+                if (btn.dataset.relation === (currentEditingPlayer?.relation || 'none')) {
+                    btn.classList.add('selected');
+                }
+            });
+            
+            renderSeats();
+        }
+        
+        function renderRelatedPlayerSelect() {
+            const select = document.getElementById('relatedPlayerSelect');
+            select.innerHTML = '<option value="">选择关联玩家</option>';
+            
+            gameState.players.forEach(player => {
+                if (player.id !== currentEditingPlayer.id) {
+                    const option = document.createElement('option');
+                    option.value = player.id;
+                    option.textContent = `${player.seat}号 ${player.name}`;
+                    if (currentEditingPlayer.relatedPlayer === player.id) {
+                        option.selected = true;
+                    }
+                    select.appendChild(option);
+                }
+            });
+            
+            select.onchange = () => {
+                currentEditingPlayer.relatedPlayer = select.value ? parseInt(select.value) : null;
+                renderSeats();
+            };
         }
 
         function savePlayer() {
